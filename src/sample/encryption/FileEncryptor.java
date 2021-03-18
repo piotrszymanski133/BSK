@@ -1,4 +1,4 @@
-package sample;
+package sample.encryption;
 import java.io.File;
 
 public interface FileEncryptor {
