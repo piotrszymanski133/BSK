@@ -6,12 +6,12 @@
 <?import javafx.scene.layout.Pane?>
 
 <Pane fx:controller="sample.Controller" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-      minWidth="-Infinity" prefHeight="350.0" prefWidth="343.0" xmlns="http://javafx.com/javafx/8.0.201"
+      minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.201"
       xmlns:fx="http://javafx.com/fxml/1">
    <Button layoutX="148.0" layoutY="209.0" mnemonicParsing="false" text="Wyślij"/>
    <Label layoutX="158.0" layoutY="44.0" text="Label"/>
    <ChoiceBox fx:id="modeChoiceBox" layoutX="83.0" layoutY="113.0" prefHeight="25.0" prefWidth="175.0"/>
    <Button layoutX="151.0" layoutY="265.0" mnemonicParsing="false" text="Piwo"/>
-   <Button layoutX="83.0" layoutY="163.0" mnemonicParsing="false" text="Wybierz plik..."/>
-   <Label layoutX="192.0" layoutY="163.0" prefHeight="26.0" prefWidth="96.0" text="Label"/>
+   <Button onMouseClicked="#selectFile" fx:id="selectFileButton" layoutX="83.0" layoutY="163.0" mnemonicParsing="false" text="Wybierz plik..."/>
+   <Label fx:id="selectFileLabel" layoutX="192.0" layoutY="163.0" prefHeight="26.0" prefWidth="120.0" text="Label"/>
 </Pane>
