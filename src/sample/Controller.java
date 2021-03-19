@@ -1,16 +1,16 @@
 package sample;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Button;
+import javafx.collections.*;
+import javafx.fxml.*;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import sample.encryption.Encryption;
+
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.io.File;
-import javafx.scene.control.Label;
+
 
 public class Controller implements Initializable {
     @FXML
@@ -19,6 +19,8 @@ public class Controller implements Initializable {
     private ChoiceBox<String> modeChoiceBox;
     @FXML
     private Label selectFileLabel;
+    @FXML
+    private Button encryptButton;
 
     private File file = null;
     
@@ -39,5 +41,10 @@ public class Controller implements Initializable {
         selectFileLabel.setText(file.getName());
     }
 
-
+    public void encryptFile() throws IOException {
+        FileToBytes fileToBytes = new FileToBytes(file);
+        byte[] bytes = fileToBytes.convertFileToBytes(file);
+        Encryption encryption = new Encryption(bytes);
+        encryption.encryptionECB(bytes, file);
+    }
 }
