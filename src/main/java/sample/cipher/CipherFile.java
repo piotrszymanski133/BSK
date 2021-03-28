@@ -9,5 +9,5 @@ public interface CipherFile {
 
     File encrypt(File file) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
 
-    File decrypt(File file) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException;
+    File decrypt(File file) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
 }
