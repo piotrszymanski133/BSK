@@ -1,14 +1,13 @@
 package sample;
 
-import javafx.application.Platform;
 import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
+import sample.cipher.CBC;
+import sample.cipher.ECB;
 import sample.communication.FileReceiver;
 import sample.communication.FileSender;
-import sample.encryption.Encryption;
 
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -52,10 +51,14 @@ public class Controller implements Initializable {
     }
 
     public void encryptFile() throws IOException {
-        FileToBytes fileToBytes = new FileToBytes(file);
-        byte[] bytes = fileToBytes.convertFileToBytes(file);
-        Encryption encryption = new Encryption(bytes);
-        encryption.encryptionECB(bytes, file);
+        if(modeChoiceBox.getValue().equals("ECB")){
+            ECB ecb = new ECB();
+            ecb.encrypt(file);
+        }
+        else if(modeChoiceBox.getValue().equals("CBC")){
+            CBC cbc = new CBC();
+            cbc.encrypt(file);
+        }
     }
 
     /**
