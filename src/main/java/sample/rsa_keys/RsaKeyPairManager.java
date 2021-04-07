@@ -6,23 +6,29 @@ import java.security.*;
 public class RsaKeyPairManager {
     private PublicKey publicKey;
     private PrivateKey privateKey;
+
+    /**
+     * Class for managing user's RSA key pair. Generates new one if user's directory is not found.
+     * Otherwise reads existing one from files.
+     * @param login user's login, which will be used for naming and searching for files
+     * @param password user's password, for private key encryption
+     * @param dir directory in which users' directories with keys are stored
+     */
     public RsaKeyPairManager(String login, String password, String dir) {
         File userDir = new File(dir, login);
-        //temporary txt target file
-        File keysFile = new File(userDir, "keys.txt");
-        if(!keysFile.exists()) {
+        if(!userDir.exists()) {
             try {
                 KeyPair keyPair = generateKeys();
-                RsaKeyPairFileEncryptor fileEncryptor = new RsaKeyPairFileEncryptor();
-                fileEncryptor.encryptAndSaveKeys(password, keysFile.getAbsolutePath(), keyPair);
                 this.publicKey = keyPair.getPublic();
                 this.privateKey = keyPair.getPrivate();
+                RsaKeyPairFileManager fileManager = new RsaKeyPairFileManager(userDir.getAbsolutePath());
+                fileManager.write(keyPair, password);
             } catch(NoSuchAlgorithmException ex) {
                 ex.printStackTrace();
             }
         } else {
-            RsaKeyPairFileEncryptor fileEncryptor = new RsaKeyPairFileEncryptor();
-            KeyPair keyPair = fileEncryptor.decryptAndReadKeys(password, keysFile.getAbsolutePath());
+            RsaKeyPairFileManager fileManager = new RsaKeyPairFileManager(userDir.getAbsolutePath());
+            KeyPair keyPair = fileManager.read(password);
             this.publicKey = keyPair.getPublic();
             this.privateKey = keyPair.getPrivate();
         }
@@ -33,6 +39,12 @@ public class RsaKeyPairManager {
     public PrivateKey getPrivateKey() {
         return this.privateKey;
     }
+
+    /**
+     * Generates new RSA key pair
+     * @return generated key pair
+     * @throws NoSuchAlgorithmException if RSA was not detected
+     */
     private KeyPair generateKeys() throws NoSuchAlgorithmException {
         KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(1024);
