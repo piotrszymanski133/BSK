@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 public interface CipherFile {
 
-    byte[] encrypt(File file, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
+    void encrypt(File file, Data data) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
 
-    File decrypt(byte[] encryptedBytes, SecretKey secretKey, IvParameterSpec ivParameterSpec) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
+    void decrypt( Data data) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException;
 }

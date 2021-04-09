@@ -4,6 +4,7 @@ import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import sample.cipher.CBC;
+import sample.cipher.CipherMode;
 import sample.cipher.Data;
 import sample.cipher.ECB;
 import sample.communication.FileReceiver;
@@ -54,14 +55,16 @@ public class Controller implements Initializable {
     public void sendFile() throws NoSuchAlgorithmException, IOException {
         Data data = new Data();
         if(modeChoiceBox.getValue().equals("ECB")){
+            data.setCipherMode(CipherMode.ECB);
             ECB ecb = new ECB();
-            ecb.encrypt(file, data.getSecretKey(), data.getIvParameterSpec());
+            ecb.encrypt(file, data);
         }
         else if(modeChoiceBox.getValue().equals("CBC")){
+            data.setCipherMode(CipherMode.CBC);
             CBC cbc = new CBC();
-            cbc.encrypt(file, data.getSecretKey(), data.getIvParameterSpec());
+            cbc.encrypt(file, data);
         }
-        sendingExecutor.submit(new FileSender(file));
+        sendingExecutor.submit(new FileSender(data));
     }
 
     /**
