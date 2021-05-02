@@ -11,35 +11,28 @@ import java.security.NoSuchAlgorithmException;
 public class ECB implements CipherFile{
 
     @Override
-    public void encrypt(File file, Data data) throws IOException{
-        //TODO: MAKE READING AND CIPHERING BUFFERED
-        byte[] bytes = Files.readAllBytes(file.toPath());
-
+    public byte[] encrypt(Data data, byte[] bytes){
         try{
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-
             cipher.init(Cipher.ENCRYPT_MODE, data.getSecretKey());
-            data.setFileName(file.getName());
-            data.setDataBytes(cipher.doFinal(bytes));
+            return cipher.doFinal(bytes);
 
-        }catch(Exception e)
-        {
+        }catch(Exception e) {
             System.out.println("Error with ECB mode encryption");
+            return null;
         }
     }
 
     @Override
-    public void decrypt(Data data) {
+    public byte[] decrypt(Data data, byte[] bytes) {
         try {
-            //TODO: MAKE DECIPHERING BUFFERED
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
             cipher.init(Cipher.DECRYPT_MODE, data.getSecretKey());
-            try(FileOutputStream os = new FileOutputStream(data.getFileName())) {
-                os.write(cipher.doFinal(data.getDataBytes()));
-            }
+            return cipher.doFinal(bytes);
 
         }catch(Exception e){
-            System.out.println("Error with ECB mode decryption");
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 }

@@ -1,10 +1,8 @@
 package sample.communication;
 
-import sample.cipher.CipherFile;
-import sample.cipher.CipherMode;
-import sample.cipher.Data;
-import sample.cipher.ECB;
+import sample.cipher.*;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,6 +10,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,28 +61,33 @@ public class FileReceiver implements Runnable{
             String iv = is.readUTF();
             byte[] decodedIv = Base64.getDecoder().decode(iv);
             String name = is.readUTF();
-            int size = is.read();
-            try(ByteArrayOutputStream os = new ByteArrayOutputStream(size)) {
-                byte[] buffer = new byte[4096];
-                int readSize;
-                while ((readSize = is.read(buffer)) != -1) {
-                    os.write(buffer, 0, readSize);
+
+            Data data = new Data();
+            data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
+            data.setIvParameterSpec(new IvParameterSpec(decodedIv));
+            data.setCipherMode(mode);
+            CipherFile cipherFile;
+
+            if (mode == CipherMode.ECB)
+            {
+                cipherFile = new ECB();
+            }
+            else
+            {
+                cipherFile = new CBC();
+            }
+            //TODO: DIFFERENT MODES
+            try(FileOutputStream os = new FileOutputStream(name)) {
+                byte[] buffer = new byte[16400];
+                byte[] decryptedBuffer;
+                while (is.read(buffer) != -1) {
+                    decryptedBuffer = cipherFile.decrypt(data, buffer);
+                    os.write(decryptedBuffer);
                 }
-                Data data = new Data();
-                data.setDataBytes(os.toByteArray());
-                data.setFileName(name);
-                data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
-                data.setIvParameterSpec(new IvParameterSpec(decodedIv));
                 System.out.println("Downloaded " + name);
                 System.out.println("Key " + key);
                 System.out.println("IV " + iv);
-                CipherFile decryptor;
-                if(mode == CipherMode.ECB)
-                {
-                    decryptor = new ECB();
-                    decryptor.decrypt(data);
-                }
-                //TODO: DIFFERENT MODES
+
             }
         }catch(Exception e){
             System.err.println(e.toString());

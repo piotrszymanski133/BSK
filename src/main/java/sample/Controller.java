@@ -52,17 +52,15 @@ public class Controller implements Initializable {
     /**
      * Send loaded file (for testing purposes file is not encrypted yet)
      */
-    public void sendFile() throws NoSuchAlgorithmException, IOException {
+    public void sendFile() throws NoSuchAlgorithmException{
         Data data = new Data();
+        data.setFile(file);
+
         if(modeChoiceBox.getValue().equals("ECB")){
             data.setCipherMode(CipherMode.ECB);
-            ECB ecb = new ECB();
-            ecb.encrypt(file, data);
         }
         else if(modeChoiceBox.getValue().equals("CBC")){
             data.setCipherMode(CipherMode.CBC);
-            CBC cbc = new CBC();
-            cbc.encrypt(file, data);
         }
         sendingExecutor.submit(new FileSender(data));
     }

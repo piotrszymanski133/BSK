@@ -3,6 +3,7 @@ package sample.cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
@@ -10,8 +11,7 @@ public class Data {
 
     private CipherMode cipherMode;
     private SecretKey secretKey;
-    private String fileName;
-    private byte[] dataBytes;
+    private File file;
     private IvParameterSpec ivParameterSpec;
 
 
@@ -24,8 +24,7 @@ public class Data {
         ivParameterSpec = new IvParameterSpec(iv);
 
         cipherMode = null;
-        dataBytes = null;
-        fileName = null;
+        file = null;
     }
 
     // GETTER FOR SECRETKEY
@@ -46,20 +45,12 @@ public class Data {
         ivParameterSpec = i;
     }
 
-    public byte[] getDataBytes(){
-        return dataBytes;
+    public File getFile(){
+        return file;
     }
 
-    public void setDataBytes(byte[] d){
-        dataBytes = d;
-    }
-
-    public String getFileName(){
-        return fileName;
-    }
-
-    public void setFileName(String s){
-        fileName = s;
+    public void setFile(File s){
+        file = s;
     }
 
     public CipherMode getCipherMode(){
