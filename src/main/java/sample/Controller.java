@@ -3,12 +3,15 @@ package sample;
 import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
+import sample.asymmetrical_cipher.RsaCipher;
 import sample.cipher.CBC;
 import sample.cipher.CipherMode;
 import sample.cipher.Data;
 import sample.cipher.ECB;
 import sample.communication.FileReceiver;
 import sample.communication.FileSender;
+import sample.rsa_keys.RsaKeyPairManager;
+import sample.user.User;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,11 +27,20 @@ public class Controller implements Initializable {
     private ChoiceBox<String> modeChoiceBox;
     @FXML
     private Label selectFileLabel;
+    @FXML
+    private Button loginButton;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Button selectFileButton;
 
     private FileReceiver fileReceiver;
     private ExecutorService sendingExecutor = Executors.newSingleThreadExecutor();
     private ExecutorService receivingExecutor = Executors.newSingleThreadExecutor();
     private File file = null;
+    private User user;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -72,5 +84,17 @@ public class Controller implements Initializable {
        fileReceiver.shutdown();
        receivingExecutor.shutdown();
        sendingExecutor.shutdown();
+    }
+
+    public void login() {
+        String username = usernameField.getText();
+        String password = passwordField.getText();
+        RsaKeyPairManager manager = new RsaKeyPairManager(username, password, "./users");
+        user = new User(username, password, manager.getKeyPair());
+        String test = "test testowy testom testowym testuje test";
+        RsaCipher rsaCipher = new RsaCipher(user.getKeyPair());
+        byte[] encryptedTest = rsaCipher.encrypt(test);
+        String decryptedTest = rsaCipher.decrypt(encryptedTest);
+        System.out.println(decryptedTest);
     }
 }

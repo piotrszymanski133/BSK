@@ -39,6 +39,9 @@ public class RsaKeyPairManager {
     public PrivateKey getPrivateKey() {
         return this.privateKey;
     }
+    public KeyPair getKeyPair() {
+        return new KeyPair(this.publicKey, this.privateKey);
+    }
 
     /**
      * Generates new RSA key pair

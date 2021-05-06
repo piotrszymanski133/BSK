@@ -1,13 +1,14 @@
 package sample.rsa_keys;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
-import java.security.spec.KeySpec;
-import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.*;
 
 /**
  * Class for encrypting and decrypting private key
@@ -64,10 +65,14 @@ public class PrivateKeyEncryptor {
             //decrypt keys
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, secret);
-            byte[] privateKeyBytes = cipher.doFinal(byteData.getPrivateKey());
+            byte[] privateKeyBytes;
+            try {
+                privateKeyBytes = cipher.doFinal(byteData.getPrivateKey());
+            } catch(BadPaddingException ex) {
+                privateKeyBytes = KeyPairGenerator.getInstance("RSA").generateKeyPair().getPrivate().getEncoded();
+            }
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
-            return privateKey;
+            return kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
         } catch(Exception ex) {
             ex.printStackTrace();
             return null;
