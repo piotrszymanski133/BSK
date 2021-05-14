@@ -27,7 +27,7 @@ public class FileReceiver implements Runnable{
      */
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(8085)){
+        try (ServerSocket serverSocket = new ServerSocket(8088)){
             serverSocket.setSoTimeout(1000);
             while (running.get()) {
                 try {
@@ -67,16 +67,25 @@ public class FileReceiver implements Runnable{
             data.setIvParameterSpec(new IvParameterSpec(decodedIv));
             data.setCipherMode(mode);
             CipherFile cipherFile;
+            switch (mode) {
+                case CBC:
+                    cipherFile = new CBC();
+                    break;
+                case CTR:
+                    cipherFile = new CTR();
+                    break;
+                case CFB:
+                    cipherFile = new CFB();
+                    break;
+                case OFB:
+                    cipherFile = new OFB();
+                    break;
+                case ECB:
+                default:
+                    cipherFile = new ECB();
+                    break;
+            }
 
-            if (mode == CipherMode.ECB)
-            {
-                cipherFile = new ECB();
-            }
-            else
-            {
-                cipherFile = new CBC();
-            }
-            //TODO: DIFFERENT MODES
             try(FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;

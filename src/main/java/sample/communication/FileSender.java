@@ -3,10 +3,7 @@ package sample.communication;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import sample.cipher.CipherFile;
-import sample.cipher.CipherMode;
-import sample.cipher.Data;
-import sample.cipher.ECB;
+import sample.cipher.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -30,14 +27,30 @@ public class FileSender implements Runnable{
         this.data = data;
         this.progressBar = progressBar;
         this.progressLabel = progressLabel;
-        if(data.getCipherMode() == CipherMode.ECB)
-            this.cipherFile = new ECB();
-        //TODO: OTHER MODES
+        switch (data.getCipherMode()) {
+            case CBC:
+                cipherFile = new CBC();
+                break;
+            case CTR:
+                cipherFile = new CTR();
+                break;
+            case CFB:
+                cipherFile = new CFB();
+                break;
+            case OFB:
+                cipherFile = new OFB();
+                break;
+            case ECB:
+            default:
+                cipherFile = new ECB();
+                break;
+        }
     }
+
     @Override
     public void run() {
         try(FileInputStream inputStream = new FileInputStream(data.getFile().getAbsolutePath())) {
-            Socket socket = new Socket("127.0.0.1", 8088);
+            Socket socket = new Socket("127.0.0.1", 8085);
             try(DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 byte[] buffer = new byte[16384];
                 byte[] encryptedBuffer;

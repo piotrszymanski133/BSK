@@ -20,5 +20,5 @@
    <Button fx:id="loginButton" layoutX="237.0" layoutY="271.0" onMouseClicked="#login" text="Login" />
    <Label fx:id="selectFileLabel" layoutX="310.0" layoutY="140.0" prefHeight="26.0" prefWidth="120.0" text="Selected file" />
    <ProgressBar fx:id="progressBar"  layoutX="220.0" layoutY="310.0"  visible="false"/>
-   <Label fx:id="progressLabel" layoutX="220.0" layoutY="320.0" prefHeight="26.0" prefWidth="120.0"/>
+   <Label fx:id="progressLabel" layoutX="220.0" layoutY="325.0"/>
 </Pane>
