@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.Pane?>
 
+<?import javafx.scene.control.ProgressBar?>
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="359.0" prefWidth="525.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
    <Button layoutX="241.0" layoutY="141.0" mnemonicParsing="false" onMouseClicked="#sendFile" text="Send" />
    <Label layoutX="186.0" layoutY="29.0" text="Choose an encryption mode " />
@@ -18,4 +19,6 @@
    <PasswordField fx:id="passwordField" layoutX="186.0" layoutY="232.0" />
    <Button fx:id="loginButton" layoutX="237.0" layoutY="271.0" onMouseClicked="#login" text="Login" />
    <Label fx:id="selectFileLabel" layoutX="310.0" layoutY="140.0" prefHeight="26.0" prefWidth="120.0" text="Selected file" />
+   <ProgressBar fx:id="progressBar"  layoutX="220.0" layoutY="310.0"  visible="false"/>
+   <Label fx:id="progressLabel" layoutX="220.0" layoutY="325.0"/>
 </Pane>

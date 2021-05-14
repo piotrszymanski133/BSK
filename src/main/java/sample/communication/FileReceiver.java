@@ -27,7 +27,7 @@ public class FileReceiver implements Runnable{
      */
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(8088)){
+        try (ServerSocket serverSocket = new ServerSocket(8085)){
             serverSocket.setSoTimeout(1000);
             while (running.get()) {
                 try {

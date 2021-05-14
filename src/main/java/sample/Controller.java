@@ -35,6 +35,10 @@ public class Controller implements Initializable {
     private PasswordField passwordField;
     @FXML
     private Button selectFileButton;
+    @FXML
+    private ProgressBar progressBar;
+    @FXML
+    private Label progressLabel;
 
     private FileReceiver fileReceiver;
     private ExecutorService sendingExecutor = Executors.newSingleThreadExecutor();
@@ -67,14 +71,16 @@ public class Controller implements Initializable {
     public void sendFile() throws NoSuchAlgorithmException{
         Data data = new Data();
         data.setFile(file);
-
+        progressLabel.setText("Sending...");
+        progressBar.setVisible(true);
+        progressBar.setProgress(0);
         if(modeChoiceBox.getValue().equals("ECB")){
             data.setCipherMode(CipherMode.ECB);
         }
         else if(modeChoiceBox.getValue().equals("CBC")){
             data.setCipherMode(CipherMode.CBC);
         }
-        sendingExecutor.submit(new FileSender(data));
+        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel));
     }
 
     /**
