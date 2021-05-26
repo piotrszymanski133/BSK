@@ -12,16 +12,18 @@ public class KeySender implements Runnable{
 
     private PublicKey publicKey;
     private AtomicBoolean running = new AtomicBoolean(true);
-    private int port;
+    private int senderPort;
+    private int receiverPort;
 
-    public KeySender(PublicKey publicKey, int port){
+    public KeySender(PublicKey publicKey, int senderPort, int receiverPort){
         this.publicKey = publicKey;
-        this.port = port;
+        this.senderPort = senderPort;
+        this.receiverPort = receiverPort;
     }
 
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(port)){
+        try (ServerSocket serverSocket = new ServerSocket(senderPort)){
             serverSocket.setSoTimeout(1000);
             while (running.get()) {
                 try {
@@ -42,7 +44,7 @@ public class KeySender implements Runnable{
 
     private void sendKey(String ip){
         try{
-            Socket socket = new Socket("127.0.0.1", port);
+            Socket socket = new Socket("192.168.56.102", receiverPort);
             try(DataOutputStream os = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 os.writeUTF(Base64.getEncoder().encodeToString(publicKey.getEncoded()));
             }

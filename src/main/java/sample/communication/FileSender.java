@@ -64,7 +64,7 @@ public class FileSender implements Runnable{
     @Override
     public void run() {
         try(FileInputStream inputStream = new FileInputStream(data.getFile().getAbsolutePath())) {
-            Socket socket = new Socket("127.0.0.1", port);
+            Socket socket = new Socket("192.168.56.102", port);
             try(DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 byte[] buffer = new byte[16384];
                 byte[] encryptedBuffer;

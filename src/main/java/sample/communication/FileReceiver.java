@@ -83,10 +83,15 @@ public class FileReceiver implements Runnable{
             byte[] decryptedNameBytes = cipher.decrypt(encryptedNameBytes);
 
             Data data = new Data();
-            data.setCipherMode(CipherMode.valueOf(new String(decryptedModeBytes)));
-            data.setSecretKey(new SecretKeySpec(decryptedKeyBytes, 0, decryptedKeyBytes.length, "AES"));
-            data.setIvParameterSpec(new IvParameterSpec(decryptedIvBytes));
+            String x = new String(decryptedModeBytes);
+            x = x.substring(125);
+            data.setCipherMode(CipherMode.valueOf(x));
+            data.setSecretKey(new SecretKeySpec((new String(decryptedKeyBytes)).substring(112)
+                    .getBytes(), 0, 16, "AES"));
+            data.setIvParameterSpec(new IvParameterSpec((new String(decryptedIvBytes)).substring(112)
+                    .getBytes()));
             String name = new String(decryptedNameBytes);
+            name = name.replaceAll(String.valueOf((char)0), "");
 
      /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
             String key = is.readUTF();

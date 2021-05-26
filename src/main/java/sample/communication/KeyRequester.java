@@ -11,11 +11,13 @@ import java.util.Base64;
 
 public class KeyRequester  implements Runnable{
     private PublicKey publicKey;
-    private String ip = "127.0.0.1";
-    private int port;
+    private String ip = "192.168.56.1";
+    private int senderPort;
+    private int receiverPort;
 
-    public KeyRequester(int port) {
-        this.port = port;
+    public KeyRequester(int senderPort, int receiverPort) {
+        this.senderPort = senderPort;
+        this.receiverPort = receiverPort;
     }
 
     public PublicKey getKey() {
@@ -26,7 +28,7 @@ public class KeyRequester  implements Runnable{
     public void run() {
 
         try{
-            Socket socket = new Socket("127.0.0.1", port);
+            Socket socket = new Socket("192.168.56.102", senderPort);
             try(DataOutputStream os = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 os.writeUTF(ip);
             }
@@ -35,7 +37,7 @@ public class KeyRequester  implements Runnable{
         }
 
 
-        try (ServerSocket serverSocket = new ServerSocket(port)){
+        try (ServerSocket serverSocket = new ServerSocket(receiverPort)){
             serverSocket.setSoTimeout(1000);
             while (true) {
                 try {
@@ -43,7 +45,7 @@ public class KeyRequester  implements Runnable{
                     try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))) {
                         String keyString = is.readUTF();
                         KeyFactory kf = KeyFactory.getInstance("RSA");
-                        publicKey =  kf.generatePublic(new X509EncodedKeySpec(keyString.getBytes()));
+                        publicKey =  kf.generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(keyString)));
                         break;
                     } catch(Exception e) {
                         e.printStackTrace();
