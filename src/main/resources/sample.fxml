@@ -9,16 +9,16 @@
 
 <?import javafx.scene.control.ProgressBar?>
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="359.0" prefWidth="525.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-   <Button layoutX="241.0" layoutY="141.0" mnemonicParsing="false" onMouseClicked="#sendFile" text="Send" />
-   <Label layoutX="186.0" layoutY="29.0" text="Choose an encryption mode " />
-   <ChoiceBox fx:id="modeChoiceBox" layoutX="175.0" layoutY="77.0" prefHeight="25.0" prefWidth="175.0" />
-   <Button fx:id="selectFileButton" layoutX="115.0" layoutY="140.0" mnemonicParsing="false" onMouseClicked="#selectFile" text="Choose a file" />
-   <Label layoutX="132.0" layoutY="198.0" text="Login:" />
+   <Button fx:id="sendFileButton" layoutX="241.0" layoutY="141.0" mnemonicParsing="false" onMouseClicked="#sendFile" text="Send" visible="false"/>
+   <Label fx:id="encryptionModeLabel" layoutX="186.0" layoutY="29.0" text="Choose an encryption mode " visible="false"/>
+   <ChoiceBox fx:id="modeChoiceBox" layoutX="175.0" layoutY="77.0" prefHeight="25.0" prefWidth="175.0" visible="false"/>
+   <Button fx:id="selectFileButton" layoutX="115.0" layoutY="140.0" mnemonicParsing="false" onMouseClicked="#selectFile" text="Choose a file" visible="false"/>
+   <Label fx:id="loginLabel" layoutX="132.0" layoutY="198.0" text="Login:" />
    <TextField fx:id="usernameField" layoutX="186.0" layoutY="194.0" />
-   <Label layoutX="122.0" layoutY="236.0" text="Password:" />
+   <Label fx:id="passwordLabel" layoutX="122.0" layoutY="236.0" text="Password:" />
    <PasswordField fx:id="passwordField" layoutX="186.0" layoutY="232.0" />
    <Button fx:id="loginButton" layoutX="237.0" layoutY="271.0" onMouseClicked="#login" text="Login" />
-   <Label fx:id="selectFileLabel" layoutX="310.0" layoutY="140.0" prefHeight="26.0" prefWidth="120.0" text="Selected file" />
+   <Label fx:id="selectFileLabel" layoutX="310.0" layoutY="140.0" prefHeight="26.0" prefWidth="120.0" text="Selected file" visible="false"/>
    <ProgressBar fx:id="progressBar"  layoutX="220.0" layoutY="310.0"  visible="false"/>
    <Label fx:id="progressLabel" layoutX="220.0" layoutY="325.0"/>
 </Pane>

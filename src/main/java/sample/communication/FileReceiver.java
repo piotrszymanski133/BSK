@@ -1,5 +1,6 @@
 package sample.communication;
 
+import sample.asymmetrical_cipher.*;
 import sample.cipher.*;
 
 import javax.crypto.NoSuchPaddingException;
@@ -10,6 +11,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,6 +21,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * It works in separate thread during life of application
  */
 public class FileReceiver implements Runnable{
+    private KeyPair keyPair;
+    private int port;
+
+    public FileReceiver(KeyPair keyPair, int port) {
+        this.keyPair = keyPair;
+        this.port = port;
+    }
 
     private AtomicBoolean running = new AtomicBoolean(true);
 
@@ -27,7 +36,7 @@ public class FileReceiver implements Runnable{
      */
     @Override
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(8088)){
+        try (ServerSocket serverSocket = new ServerSocket(port)){
             serverSocket.setSoTimeout(1000);
             while (running.get()) {
                 try {
@@ -55,7 +64,31 @@ public class FileReceiver implements Runnable{
      */
     public void downloadFile(Socket socket){
         try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))){
-            CipherMode mode = CipherMode.valueOf(is.readUTF());
+           String encryptedMode, encryptedKey, encryptedIv, encryptedName;
+
+            encryptedMode = is.readUTF();
+            encryptedKey = is.readUTF();
+            encryptedIv = is.readUTF();
+            encryptedName = is.readUTF();
+
+            byte[] encryptedModeBytes = Base64.getDecoder().decode(encryptedMode);
+            byte[] encryptedKeyBytes = Base64.getDecoder().decode(encryptedKey);
+            byte[] encryptedIvBytes = Base64.getDecoder().decode(encryptedIv);
+            byte[] encryptedNameBytes = Base64.getDecoder().decode(encryptedName);
+
+            AsymmetricalCipher cipher = new RsaCipher(this.keyPair);
+            byte[] decryptedModeBytes = cipher.decrypt(encryptedModeBytes);
+            byte[] decryptedKeyBytes = cipher.decrypt(encryptedKeyBytes);
+            byte[] decryptedIvBytes = cipher.decrypt(encryptedIvBytes);
+            byte[] decryptedNameBytes = cipher.decrypt(encryptedNameBytes);
+
+            Data data = new Data();
+            data.setCipherMode(CipherMode.valueOf(new String(decryptedModeBytes)));
+            data.setSecretKey(new SecretKeySpec(decryptedKeyBytes, 0, decryptedKeyBytes.length, "AES"));
+            data.setIvParameterSpec(new IvParameterSpec(decryptedIvBytes));
+            String name = new String(decryptedNameBytes);
+
+     /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
             String key = is.readUTF();
             byte[] decodedKey = Base64.getDecoder().decode(key);
             String iv = is.readUTF();
@@ -66,8 +99,9 @@ public class FileReceiver implements Runnable{
             data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(decodedIv));
             data.setCipherMode(mode);
+      */
             CipherFile cipherFile;
-            switch (mode) {
+            switch (data.getCipherMode()) {
                 case CBC:
                     cipherFile = new CBC();
                     break;
@@ -93,9 +127,10 @@ public class FileReceiver implements Runnable{
                     decryptedBuffer = cipherFile.decrypt(data, buffer);
                     os.write(decryptedBuffer);
                 }
+                //DEBUGOWANIE
                 System.out.println("Downloaded " + name);
-                System.out.println("Key " + key);
-                System.out.println("IV " + iv);
+                System.out.println("Key " + data.getSecretKey());
+                System.out.println("IV " + data.getIvParameterSpec());
 
             }
         }catch(Exception e){
