@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,42 +65,38 @@ public class FileReceiver implements Runnable{
      */
     public void downloadFile(Socket socket){
         try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))){
-           String encryptedMode, encryptedKey, encryptedIv, encryptedName;
+           String mode, encryptedKey, encryptedIv, name;
 
-            encryptedMode = is.readUTF();
+            mode = is.readUTF();
             encryptedKey = is.readUTF();
             encryptedIv = is.readUTF();
-            encryptedName = is.readUTF();
+            name = is.readUTF();
 
-            byte[] encryptedModeBytes = Base64.getDecoder().decode(encryptedMode);
             byte[] encryptedKeyBytes = Base64.getDecoder().decode(encryptedKey);
             byte[] encryptedIvBytes = Base64.getDecoder().decode(encryptedIv);
-            byte[] encryptedNameBytes = Base64.getDecoder().decode(encryptedName);
+
+            //System.out.println(encryptedKey);
 
             AsymmetricalCipher cipher = new RsaCipher(this.keyPair);
-            byte[] decryptedModeBytes = cipher.decrypt(encryptedModeBytes);
             byte[] decryptedKeyBytes = cipher.decrypt(encryptedKeyBytes);
             byte[] decryptedIvBytes = cipher.decrypt(encryptedIvBytes);
-            byte[] decryptedNameBytes = cipher.decrypt(encryptedNameBytes);
 
             Data data = new Data();
-            String x = new String(decryptedModeBytes);
-            x = x.substring(125);
-            data.setCipherMode(CipherMode.valueOf(x));
-            data.setSecretKey(new SecretKeySpec((new String(decryptedKeyBytes)).substring(112)
-                    .getBytes(), 0, 16, "AES"));
-            data.setIvParameterSpec(new IvParameterSpec((new String(decryptedIvBytes)).substring(112)
-                    .getBytes()));
-            String name = new String(decryptedNameBytes);
-            name = name.replaceAll(String.valueOf((char)0), "");
 
+            data.setCipherMode(CipherMode.valueOf(mode));
+            data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES"));
+            data.setIvParameterSpec(new IvParameterSpec(Arrays.copyOfRange(decryptedIvBytes, 112, 128)));
+            //name = name.replaceAll(String.valueOf((char)0), "");
+
+            System.out.println(Base64.getEncoder().encodeToString(data.getSecretKey().getEncoded()));
      /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
             String key = is.readUTF();
             byte[] decodedKey = Base64.getDecoder().decode(key);
             String iv = is.readUTF();
             byte[] decodedIv = Base64.getDecoder().decode(iv);
             String name = is.readUTF();
-
+udZtrL9LG4toZKr1ONCs8g==
+udZtrL9LG4toZKr1ONCs8g==
             Data data = new Data();
             data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(decodedIv));
@@ -128,8 +125,9 @@ public class FileReceiver implements Runnable{
             try(FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;
-                while (is.read(buffer) != -1) {
-                    decryptedBuffer = cipherFile.decrypt(data, buffer);
+                int read;
+                while ((read = is.read(buffer)) != -1) {
+                    decryptedBuffer = cipherFile.decrypt(data, Arrays.copyOfRange(buffer, 0, read));
                     os.write(decryptedBuffer);
                 }
                 //DEBUGOWANIE

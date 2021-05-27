@@ -19,6 +19,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.ConcurrentModificationException;
 import java.util.function.DoubleConsumer;
@@ -69,16 +70,16 @@ public class FileSender implements Runnable{
                 byte[] buffer = new byte[16384];
                 byte[] encryptedBuffer;
                 long readed = 0;
+                int read = 0;
 
                 AsymmetricalCipher cipher = new RsaCipher(keyPair);
-                byte[] encryptedMode = cipher.encrypt(data.getCipherMode().toString().getBytes());
                 byte[] encryptedKey = cipher.encrypt(data.getSecretKey().getEncoded());
                 byte[] encryptedIv = cipher.encrypt(data.getIvParameterSpec().getIV());
-                byte[] encryptedName = cipher.encrypt(data.getFile().getName().getBytes());
-                outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedMode));
+                outputStream.writeUTF(data.getCipherMode().name());
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedKey));
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedIv));
-                outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedName));
+                outputStream.writeUTF(data.getFile().getName());
+
                 try {
                     while ((inputStream.read(buffer)) != -1) {
                         readed += buffer.length;
