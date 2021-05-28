@@ -35,31 +35,15 @@ public class FileSender implements Runnable{
     private CipherFile cipherFile;
     private KeyPair keyPair;
     private int port;
+    private String mode;
 
-    public FileSender(Data data, ProgressBar progressBar, Label progressLabel, KeyPair keyPair, int port){
+    public FileSender(Data data, ProgressBar progressBar, Label progressLabel, KeyPair keyPair, int port, String mode){
         this.data = data;
         this.progressBar = progressBar;
         this.progressLabel = progressLabel;
         this.keyPair = keyPair;
         this.port = port;
-        switch (data.getCipherMode()) {
-            case CBC:
-                cipherFile = new CBC();
-                break;
-            case CTR:
-                cipherFile = new CTR();
-                break;
-            case CFB:
-                cipherFile = new CFB();
-                break;
-            case OFB:
-                cipherFile = new OFB();
-                break;
-            case ECB:
-            default:
-                cipherFile = new ECB();
-                break;
-        }
+        this.mode = mode;
     }
 
     @Override
@@ -75,15 +59,16 @@ public class FileSender implements Runnable{
                     AsymmetricalCipher cipher = new RsaCipher(keyPair);
                     byte[] encryptedKey = cipher.encrypt(data.getSecretKey().getEncoded());
                     byte[] encryptedIv = cipher.encrypt(data.getIvParameterSpec().getIV());
-                    outputStream.writeUTF(data.getCipherMode().toString());
+                    outputStream.writeUTF(mode);
                     outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedKey));
                     outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedIv));
                     outputStream.writeUTF(data.getFile().getName());
+                    cipherFile = new CipherFile();
                     try {
                         while ((inputStream.read(buffer)) != -1) {
                             readed += buffer.length;
                             final double c = readed;
-                            encryptedBuffer = cipherFile.encrypt(data, buffer);
+                            encryptedBuffer = cipherFile.encrypt(data, buffer, mode);
                             TimeUnit.MICROSECONDS.sleep(100);
                             outputStream.write(encryptedBuffer);
                             Platform.runLater(() -> progressBar.setProgress(c / data.getFile().length()));

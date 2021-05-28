@@ -5,10 +5,7 @@ import javafx.fxml.*;
 import javafx.scene.control.*;
 import sample.asymmetrical_cipher.AsymmetricalCipher;
 import sample.asymmetrical_cipher.RsaCipher;
-import sample.cipher.CBC;
-import sample.cipher.CipherMode;
 import sample.cipher.Data;
-import sample.cipher.ECB;
 import sample.communication.FileReceiver;
 import sample.communication.FileSender;
 import sample.communication.KeyRequester;
@@ -64,14 +61,14 @@ public class Controller implements Initializable {
     // when on two different machines keySenderPort and keyReceiverTargetPort should be equal
     // when on two different machines keyReceiverPort and keySenderTargetPort should be equal
     // I think at least, haven't tested it
-    private int keySenderPort = 8085;
-    private int keyReceiverPort = 8086;
-    private int keySenderTargetPort = 8083;
-    private int keyReceiverTargetPort = 8084;
+    private int keySenderPort = 8084;
+    private int keyReceiverPort = 8083;
+    private int keySenderTargetPort = 8086;
+    private int keyReceiverTargetPort = 8085;
 
     // when on two different machines fileSenderPort and fileReceiverPort should be equal
-    private int fileSenderPort = 8087;
-    private int fileReceiverPort = 8088;
+    private int fileSenderPort = 8088;
+    private int fileReceiverPort = 8087;
 
     private FileReceiver fileReceiver;
     private KeySender keySender;
@@ -108,12 +105,6 @@ public class Controller implements Initializable {
         progressLabel.setText("Sending...");
         progressBar.setVisible(true);
         progressBar.setProgress(0);
-        if(modeChoiceBox.getValue().equals("ECB")){
-            data.setCipherMode(CipherMode.ECB);
-        }
-        else if(modeChoiceBox.getValue().equals("CBC")){
-            data.setCipherMode(CipherMode.CBC);
-        }
         KeyRequester keyRequester = new KeyRequester(keyReceiverTargetPort, keyReceiverPort);
         keyReceiveExecutor.submit(keyRequester);
         try {
@@ -122,7 +113,7 @@ public class Controller implements Initializable {
             System.err.println(e.getMessage());
         }
         PublicKey publicKey = keyRequester.getKey();
-        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel, new KeyPair(publicKey, null), fileSenderPort));
+        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel, new KeyPair(publicKey, null), fileSenderPort, modeChoiceBox.getValue()));
     }
 
     /**

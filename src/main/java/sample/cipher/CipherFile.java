@@ -9,7 +9,7 @@ public class CipherFile {
 
     public byte[] encrypt(Data data, byte[] bytes, String cipherMode){
         try{
-            Cipher cipher = Cipher.getInstance("AES/" + cipherMode +"/NoPadding");
+            Cipher cipher = Cipher.getInstance("AES/" + cipherMode +"/PKCS5Padding");
             if(cipherMode.equals("ECB")){
                 cipher.init(Cipher.ENCRYPT_MODE, data.getSecretKey());
             }
@@ -27,7 +27,7 @@ public class CipherFile {
 
     public byte[] decrypt(Data data, byte[] bytes, String cipherMode) {
         try {
-            Cipher cipher = Cipher.getInstance("AES/" + cipherMode +"/NoPadding");
+            Cipher cipher = Cipher.getInstance("AES/" + cipherMode +"/PKCS5Padding");
             if(cipherMode.equals("ECB")) {
                 cipher.init(Cipher.DECRYPT_MODE, data.getSecretKey());
             }

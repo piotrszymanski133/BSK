@@ -80,7 +80,6 @@ public class FileReceiver implements Runnable{
             byte[] decryptedIvBytes = cipher.decrypt(encryptedIvBytes);
 
             Data data = new Data();
-            data.setCipherMode(CipherMode.valueOf(mode));
             data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(Arrays.copyOfRange(decryptedIvBytes, 112, 128)));
             name = name.replaceAll(String.valueOf((char) 0), "");
@@ -97,30 +96,12 @@ public class FileReceiver implements Runnable{
         data.setIvParameterSpec(new IvParameterSpec(decodedIv));
         data.setCipherMode(mode);
   */
-            CipherFile cipherFile;
-            switch (data.getCipherMode()) {
-                case CBC:
-                    cipherFile = new CBC();
-                    break;
-                case CTR:
-                    cipherFile = new CTR();
-                    break;
-                case CFB:
-                    cipherFile = new CFB();
-                    break;
-                case OFB:
-                    cipherFile = new OFB();
-                    break;
-                case ECB:
-                default:
-                    cipherFile = new ECB();
-                    break;
-            }
+            CipherFile cipherFile = new CipherFile();
             try (FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;
                 while (is.read(buffer) != -1) {
-                    decryptedBuffer = cipherFile.decrypt(data, buffer);
+                    decryptedBuffer = cipherFile.decrypt(data, buffer, mode);
                     os.write(decryptedBuffer);
                 }
                 //DEBUGOWANIE
