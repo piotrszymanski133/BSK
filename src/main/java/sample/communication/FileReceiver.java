@@ -55,7 +55,7 @@ public class FileReceiver implements Runnable{
      */
     public void downloadFile(Socket socket){
         try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))){
-            CipherMode mode = CipherMode.valueOf(is.readUTF());
+            String cipherMode = is.readUTF();
             String key = is.readUTF();
             byte[] decodedKey = Base64.getDecoder().decode(key);
             String iv = is.readUTF();
@@ -65,32 +65,12 @@ public class FileReceiver implements Runnable{
             Data data = new Data();
             data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(decodedIv));
-            data.setCipherMode(mode);
-            CipherFile cipherFile;
-            switch (mode) {
-                case CBC:
-                    cipherFile = new CBC();
-                    break;
-                case CTR:
-                    cipherFile = new CTR();
-                    break;
-                case CFB:
-                    cipherFile = new CFB();
-                    break;
-                case OFB:
-                    cipherFile = new OFB();
-                    break;
-                case ECB:
-                default:
-                    cipherFile = new ECB();
-                    break;
-            }
-
+            CipherFile cipherFile = new CipherFile();
             try(FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;
                 while (is.read(buffer) != -1) {
-                    decryptedBuffer = cipherFile.decrypt(data, buffer);
+                    decryptedBuffer = cipherFile.decrypt(data, buffer, cipherMode);
                     os.write(decryptedBuffer);
                 }
                 System.out.println("Downloaded " + name);

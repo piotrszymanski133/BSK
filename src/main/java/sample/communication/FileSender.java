@@ -5,6 +5,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import sample.cipher.*;
 
+import javax.crypto.Cipher;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -21,7 +22,6 @@ public class FileSender implements Runnable{
     private Data data;
     private ProgressBar progressBar;
     private Label progressLabel;
-    private CipherFile cipherFile;
     private String cipherMode;
 
     public FileSender(Data data, ProgressBar progressBar, Label progressLabel, String cipherMode){
@@ -34,6 +34,8 @@ public class FileSender implements Runnable{
     @Override
     public void run() {
         try(FileInputStream inputStream = new FileInputStream(data.getFile().getAbsolutePath())) {
+            // CipherFile for all modes
+            CipherFile cipherFile = new CipherFile();
             Socket socket = new Socket("127.0.0.1", 8085);
             try(DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 byte[] buffer = new byte[16384];
