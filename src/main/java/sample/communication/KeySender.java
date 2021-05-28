@@ -31,7 +31,6 @@ public class KeySender implements Runnable{
                     String ip;
                     try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))) {
                         ip = is.readUTF();
-                        System.out.println(Base64.getEncoder().encodeToString(publicKey.getEncoded()));
                     }
                     sendKey(ip);
                 }catch(SocketTimeoutException e){
@@ -42,6 +41,7 @@ public class KeySender implements Runnable{
             System.err.println(e.toString());
         }
     }
+
     private void sendKey(String ip){
         try{
             Socket socket = new Socket("192.168.56.102", receiverPort);
