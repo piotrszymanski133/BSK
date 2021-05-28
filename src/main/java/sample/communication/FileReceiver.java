@@ -64,8 +64,8 @@ public class FileReceiver implements Runnable{
      * @param socket client socket
      */
     public void downloadFile(Socket socket){
-        try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))){
-           String mode, encryptedKey, encryptedIv, name;
+        try (DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))) {
+            String mode, encryptedKey, encryptedIv, name;
 
             mode = is.readUTF();
             encryptedKey = is.readUTF();
@@ -81,22 +81,22 @@ public class FileReceiver implements Runnable{
 
             Data data = new Data();
             data.setCipherMode(CipherMode.valueOf(mode));
-            data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes,112,128), 0, 16, "AES"));
+            data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(Arrays.copyOfRange(decryptedIvBytes, 112, 128)));
-            name = name.replaceAll(String.valueOf((char)0), "");
+            name = name.replaceAll(String.valueOf((char) 0), "");
 
-     /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
-            String key = is.readUTF();
-            byte[] decodedKey = Base64.getDecoder().decode(key);
-            String iv = is.readUTF();
-            byte[] decodedIv = Base64.getDecoder().decode(iv);
-            String name = is.readUTF();
+ /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
+        String key = is.readUTF();
+        byte[] decodedKey = Base64.getDecoder().decode(key);
+        String iv = is.readUTF();
+        byte[] decodedIv = Base64.getDecoder().decode(iv);
+        String name = is.readUTF();
 
-            Data data = new Data();
-            data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
-            data.setIvParameterSpec(new IvParameterSpec(decodedIv));
-            data.setCipherMode(mode);
-      */
+        Data data = new Data();
+        data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
+        data.setIvParameterSpec(new IvParameterSpec(decodedIv));
+        data.setCipherMode(mode);
+  */
             CipherFile cipherFile;
             switch (data.getCipherMode()) {
                 case CBC:
@@ -116,8 +116,7 @@ public class FileReceiver implements Runnable{
                     cipherFile = new ECB();
                     break;
             }
-
-            try(FileOutputStream os = new FileOutputStream(name)) {
+            try (FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;
                 while (is.read(buffer) != -1) {
@@ -128,9 +127,8 @@ public class FileReceiver implements Runnable{
                 System.out.println("Downloaded " + name);
                 System.out.println("Key " + data.getSecretKey());
                 System.out.println("IV " + data.getIvParameterSpec());
-
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println(e.toString());
         }
     }

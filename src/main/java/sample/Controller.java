@@ -3,6 +3,7 @@ package sample;
 import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
+import sample.asymmetrical_cipher.AsymmetricalCipher;
 import sample.asymmetrical_cipher.RsaCipher;
 import sample.cipher.CBC;
 import sample.cipher.CipherMode;
@@ -15,11 +16,16 @@ import sample.communication.KeySender;
 import sample.rsa_keys.RsaKeyPairManager;
 import sample.user.User;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.ResourceBundle;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -52,14 +58,16 @@ public class Controller implements Initializable {
     private Label passwordLabel;
     @FXML
     private Label encryptionModeLabel;
+    @FXML
+    private Button testKeysButton;
 
     // when on two different machines keySenderPort and keyReceiverTargetPort should be equal
     // when on two different machines keyReceiverPort and keySenderTargetPort should be equal
     // I think at least, haven't tested it
-    private int keySenderPort = 8085;
-    private int keyReceiverPort = 8086;
-    private int keySenderTargetPort = 8083;
-    private int keyReceiverTargetPort = 8084;
+    private int keySenderPort = 8084;
+    private int keyReceiverPort = 8083;
+    private int keySenderTargetPort = 8086;
+    private int keyReceiverTargetPort = 8085;
 
     // when on two different machines fileSenderPort and fileReceiverPort should be equal
     private int fileSenderPort = 8088;
@@ -109,7 +117,7 @@ public class Controller implements Initializable {
         KeyRequester keyRequester = new KeyRequester(keyReceiverTargetPort, keyReceiverPort);
         keyReceiveExecutor.submit(keyRequester);
         try {
-            keyReceiveExecutor.awaitTermination(10, TimeUnit.SECONDS);
+            keyReceiveExecutor.awaitTermination(1, TimeUnit.SECONDS);
         }catch(InterruptedException e){
             System.err.println(e.getMessage());
         }
@@ -148,5 +156,25 @@ public class Controller implements Initializable {
         modeChoiceBox.setVisible(true);
         selectFileButton.setVisible(true);
         selectFileLabel.setVisible(true);
+        testKeysButton.setVisible(true);
+
+    }
+
+    public void testKeys() {
+        try {
+            SecretKey firstKey = KeyGenerator.getInstance("AES").generateKey();
+            AsymmetricalCipher cipher = new RsaCipher(user.getKeyPair());
+            byte[] encryptedKeyBytes = cipher.encrypt(firstKey.getEncoded());
+            byte[] sentEncryptedKeyBytes = Base64.getDecoder().decode(Base64.getEncoder().encodeToString(encryptedKeyBytes));
+            byte[] decryptedKeyBytes = cipher.decrypt(sentEncryptedKeyBytes);
+            SecretKey testKey = new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES");
+            if(firstKey.equals(testKey)) {
+                System.out.println("RÓWNE");
+            } else {
+                System.out.println("BRZYDKO");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
