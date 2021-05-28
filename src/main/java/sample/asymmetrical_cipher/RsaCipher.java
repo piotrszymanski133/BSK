@@ -13,21 +13,21 @@ public class RsaCipher implements AsymmetricalCipher {
     public RsaCipher(KeyPair keyPair) {
         this.keyPair = keyPair;
     }
-    public byte[] encrypt(String data) {
+    public byte[] encrypt(byte[] data) {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-            return cipher.doFinal(data.getBytes());
+            return cipher.doFinal(data);
         } catch(BadPaddingException | IllegalBlockSizeException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
             ex.printStackTrace();
             return null;
         }
     }
-    public String decrypt(byte[] data) {
+    public byte[] decrypt(byte[] data) {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
-            return new String(cipher.doFinal(data));
+            return cipher.doFinal(data);
         } catch(BadPaddingException | IllegalBlockSizeException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
             ex.printStackTrace();
             return null;
