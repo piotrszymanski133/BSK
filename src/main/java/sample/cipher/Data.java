@@ -9,7 +9,6 @@ import java.security.SecureRandom;
 
 public class Data {
 
-    private CipherMode cipherMode;
     private SecretKey secretKey;
     private File file;
     private IvParameterSpec ivParameterSpec;
@@ -22,8 +21,6 @@ public class Data {
         SecureRandom random = new SecureRandom();
         random.nextBytes(iv);
         ivParameterSpec = new IvParameterSpec(iv);
-
-        cipherMode = null;
         file = null;
     }
 
@@ -53,12 +50,5 @@ public class Data {
         file = s;
     }
 
-    public CipherMode getCipherMode(){
-        return  cipherMode;
-    }
-
-    public void setCipherMode(CipherMode c){
-        cipherMode = c;
-    }
 }
 

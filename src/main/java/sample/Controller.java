@@ -4,16 +4,12 @@ import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
 import sample.asymmetrical_cipher.RsaCipher;
-import sample.cipher.CBC;
-import sample.cipher.CipherMode;
 import sample.cipher.Data;
-import sample.cipher.ECB;
 import sample.communication.FileReceiver;
 import sample.communication.FileSender;
 import sample.rsa_keys.RsaKeyPairManager;
 import sample.user.User;
 
-import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ResourceBundle;
@@ -74,13 +70,9 @@ public class Controller implements Initializable {
         progressLabel.setText("Sending...");
         progressBar.setVisible(true);
         progressBar.setProgress(0);
-        if(modeChoiceBox.getValue().equals("ECB")){
-            data.setCipherMode(CipherMode.ECB);
-        }
-        else if(modeChoiceBox.getValue().equals("CBC")){
-            data.setCipherMode(CipherMode.CBC);
-        }
-        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel));
+        // Get cipher mode from choicebox
+        String cipherMode = modeChoiceBox.getValue();
+        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel, cipherMode));
     }
 
     /**

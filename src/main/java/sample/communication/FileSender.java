@@ -22,29 +22,13 @@ public class FileSender implements Runnable{
     private ProgressBar progressBar;
     private Label progressLabel;
     private CipherFile cipherFile;
+    private String cipherMode;
 
-    public FileSender(Data data, ProgressBar progressBar, Label progressLabel){
+    public FileSender(Data data, ProgressBar progressBar, Label progressLabel, String cipherMode){
         this.data = data;
         this.progressBar = progressBar;
         this.progressLabel = progressLabel;
-        switch (data.getCipherMode()) {
-            case CBC:
-                cipherFile = new CBC();
-                break;
-            case CTR:
-                cipherFile = new CTR();
-                break;
-            case CFB:
-                cipherFile = new CFB();
-                break;
-            case OFB:
-                cipherFile = new OFB();
-                break;
-            case ECB:
-            default:
-                cipherFile = new ECB();
-                break;
-        }
+        this.cipherMode = cipherMode;
     }
 
     @Override
@@ -55,7 +39,7 @@ public class FileSender implements Runnable{
                 byte[] buffer = new byte[16384];
                 byte[] encryptedBuffer;
                 long readed = 0;
-                outputStream.writeUTF(data.getCipherMode().toString());
+                outputStream.writeUTF(cipherMode);
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(data.getSecretKey().getEncoded()));
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(data.getIvParameterSpec().getIV()));
                 outputStream.writeUTF(data.getFile().getName());
@@ -63,7 +47,7 @@ public class FileSender implements Runnable{
                     while ((inputStream.read(buffer)) != -1) {
                         readed += buffer.length;
                         final double c = readed;
-                        encryptedBuffer = cipherFile.encrypt(data, buffer);
+                        encryptedBuffer = cipherFile.encrypt(data, buffer, cipherMode);
                         outputStream.write(encryptedBuffer);
                         Platform.runLater(() -> progressBar.setProgress(c/data.getFile().length()));
                     }
