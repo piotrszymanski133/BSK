@@ -21,6 +21,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleConsumer;
 
 /**
@@ -83,6 +84,7 @@ public class FileSender implements Runnable{
                             readed += buffer.length;
                             final double c = readed;
                             encryptedBuffer = cipherFile.encrypt(data, buffer);
+                            TimeUnit.MICROSECONDS.sleep(100);
                             outputStream.write(encryptedBuffer);
                             Platform.runLater(() -> progressBar.setProgress(c / data.getFile().length()));
                         }
