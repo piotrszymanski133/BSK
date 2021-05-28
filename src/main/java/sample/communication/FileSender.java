@@ -64,21 +64,19 @@ public class FileSender implements Runnable{
     @Override
     public void run() {
         try(FileInputStream inputStream = new FileInputStream(data.getFile().getAbsolutePath())) {
-            Socket socket = new Socket("192.168.56.102", port);
+            Socket socket = new Socket("127.0.0.1", port);
             try(DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 byte[] buffer = new byte[16384];
                 byte[] encryptedBuffer;
                 long readed = 0;
 
                 AsymmetricalCipher cipher = new RsaCipher(keyPair);
-                byte[] encryptedMode = cipher.encrypt(data.getCipherMode().toString().getBytes());
                 byte[] encryptedKey = cipher.encrypt(data.getSecretKey().getEncoded());
                 byte[] encryptedIv = cipher.encrypt(data.getIvParameterSpec().getIV());
-                byte[] encryptedName = cipher.encrypt(data.getFile().getName().getBytes());
-                outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedMode));
+                outputStream.writeUTF(data.getCipherMode().toString());
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedKey));
                 outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedIv));
-                outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedName));
+                outputStream.writeUTF(data.getFile().getName());
                 try {
                     while ((inputStream.read(buffer)) != -1) {
                         readed += buffer.length;

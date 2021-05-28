@@ -53,9 +53,16 @@ public class Controller implements Initializable {
     @FXML
     private Label encryptionModeLabel;
 
-    private int keySenderPort = 8086;
-    private int keyReceiverPort = 8085;
-    //private int fileSenderPort = 8088;
+    // when on two different machines keySenderPort and keyReceiverTargetPort should be equal
+    // when on two different machines keyReceiverPort and keySenderTargetPort should be equal
+    // I think at least, haven't tested it
+    private int keySenderPort = 8085;
+    private int keyReceiverPort = 8086;
+    private int keySenderTargetPort = 8083;
+    private int keyReceiverTargetPort = 8084;
+
+    // when on two different machines fileSenderPort and fileReceiverPort should be equal
+    private int fileSenderPort = 8088;
     private int fileReceiverPort = 8087;
 
     private FileReceiver fileReceiver;
@@ -99,7 +106,7 @@ public class Controller implements Initializable {
         else if(modeChoiceBox.getValue().equals("CBC")){
             data.setCipherMode(CipherMode.CBC);
         }
-        KeyRequester keyRequester = new KeyRequester(keySenderPort, keyReceiverPort);
+        KeyRequester keyRequester = new KeyRequester(keyReceiverTargetPort, keyReceiverPort);
         keyReceiveExecutor.submit(keyRequester);
         try {
             keyReceiveExecutor.awaitTermination(10, TimeUnit.SECONDS);
@@ -107,7 +114,7 @@ public class Controller implements Initializable {
             System.err.println(e.getMessage());
         }
         PublicKey publicKey = keyRequester.getKey();
-        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel, new KeyPair(publicKey, null), fileReceiverPort));
+        sendingExecutor.submit(new FileSender(data, progressBar, progressLabel, new KeyPair(publicKey, null), fileSenderPort));
     }
 
     /**
@@ -127,7 +134,7 @@ public class Controller implements Initializable {
 
         fileReceiver = new FileReceiver(user.getKeyPair(), fileReceiverPort);
         receivingExecutor.submit(fileReceiver);
-        keySender = new KeySender(user.getKeyPair().getPublic(), keySenderPort, keyReceiverPort);
+        keySender = new KeySender(user.getKeyPair().getPublic(), keySenderPort, keySenderTargetPort);
         keySendExecutor.submit(keySender);
 
         loginLabel.setVisible(false);

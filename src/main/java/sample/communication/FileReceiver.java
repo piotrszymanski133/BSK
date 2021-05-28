@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -64,33 +65,24 @@ public class FileReceiver implements Runnable{
      */
     public void downloadFile(Socket socket){
         try(DataInputStream is = new DataInputStream(new BufferedInputStream(socket.getInputStream()))){
-           String encryptedMode, encryptedKey, encryptedIv, encryptedName;
+           String mode, encryptedKey, encryptedIv, name;
 
-            encryptedMode = is.readUTF();
+            mode = is.readUTF();
             encryptedKey = is.readUTF();
             encryptedIv = is.readUTF();
-            encryptedName = is.readUTF();
+            name = is.readUTF();
 
-            byte[] encryptedModeBytes = Base64.getDecoder().decode(encryptedMode);
             byte[] encryptedKeyBytes = Base64.getDecoder().decode(encryptedKey);
             byte[] encryptedIvBytes = Base64.getDecoder().decode(encryptedIv);
-            byte[] encryptedNameBytes = Base64.getDecoder().decode(encryptedName);
 
             AsymmetricalCipher cipher = new RsaCipher(this.keyPair);
-            byte[] decryptedModeBytes = cipher.decrypt(encryptedModeBytes);
             byte[] decryptedKeyBytes = cipher.decrypt(encryptedKeyBytes);
             byte[] decryptedIvBytes = cipher.decrypt(encryptedIvBytes);
-            byte[] decryptedNameBytes = cipher.decrypt(encryptedNameBytes);
 
             Data data = new Data();
-            String x = new String(decryptedModeBytes);
-            x = x.substring(125);
-            data.setCipherMode(CipherMode.valueOf(x));
-            data.setSecretKey(new SecretKeySpec((new String(decryptedKeyBytes)).substring(112)
-                    .getBytes(), 0, 16, "AES"));
-            data.setIvParameterSpec(new IvParameterSpec((new String(decryptedIvBytes)).substring(112)
-                    .getBytes()));
-            String name = new String(decryptedNameBytes);
+            data.setCipherMode(CipherMode.valueOf(mode));
+            data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes,112,128), 0, 16, "AES"));
+            data.setIvParameterSpec(new IvParameterSpec(Arrays.copyOfRange(decryptedIvBytes, 112, 128)));
             name = name.replaceAll(String.valueOf((char)0), "");
 
      /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
