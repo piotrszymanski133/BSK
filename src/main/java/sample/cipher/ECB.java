@@ -19,6 +19,7 @@ public class ECB implements CipherFile{
 
         }catch(Exception e) {
             System.out.println("Error with ECB mode encryption");
+            System.out.println(e.getMessage());
             return null;
         }
     }
@@ -31,6 +32,7 @@ public class ECB implements CipherFile{
             return cipher.doFinal(bytes);
 
         }catch(Exception e){
+            System.out.println("Error with ECB mode decryption");
             System.out.println(e.getMessage());
             return null;
         }
