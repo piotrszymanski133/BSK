@@ -33,13 +33,19 @@ public class KeySender implements Runnable{
                         ip = is.readUTF();
                     }
                     sendKey(ip);
-                }catch(SocketTimeoutException e){
-                    System.err.println(e.toString());
+                }catch(SocketTimeoutException ignored){
                 }
             }
         }catch(IOException e){
             System.err.println(e.toString());
         }
+    }
+
+    /**
+     * Breaks the waiting loop
+     */
+    public void shutdown(){
+        running.set(false);
     }
 
     private void sendKey(String ip){

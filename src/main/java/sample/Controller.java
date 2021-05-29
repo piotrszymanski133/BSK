@@ -3,8 +3,6 @@ package sample;
 import javafx.collections.*;
 import javafx.fxml.*;
 import javafx.scene.control.*;
-import sample.asymmetrical_cipher.AsymmetricalCipher;
-import sample.asymmetrical_cipher.RsaCipher;
 import sample.cipher.Data;
 import sample.communication.FileReceiver;
 import sample.communication.FileSender;
@@ -12,17 +10,10 @@ import sample.communication.KeyRequester;
 import sample.communication.KeySender;
 import sample.rsa_keys.RsaKeyPairManager;
 import sample.user.User;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.ResourceBundle;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +47,7 @@ public class Controller implements Initializable {
     @FXML
     private Label encryptionModeLabel;
     @FXML
-    private Button testKeysButton;
+    private Label receivingProgressLabel;
 
     // when on two different machines keySenderPort and keyReceiverTargetPort should be equal
     // when on two different machines keyReceiverPort and keySenderTargetPort should be equal
@@ -81,7 +72,7 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        ObservableList<String> availableChoices = FXCollections.observableArrayList("ECB", "CBC", "CTR", "OFB", "CFB");
+        ObservableList<String> availableChoices = FXCollections.observableArrayList("ECB", "CBC", "OFB", "CFB");
         modeChoiceBox.setItems(availableChoices);
         modeChoiceBox.setValue("ECB");
         selectFileLabel.setText("File not selected");
@@ -123,6 +114,9 @@ public class Controller implements Initializable {
        fileReceiver.shutdown();
        receivingExecutor.shutdown();
        sendingExecutor.shutdown();
+       keySender.shutdown();
+       keySendExecutor.shutdown();
+       keyReceiveExecutor.shutdown();
     }
 
     public void login() {
@@ -131,7 +125,7 @@ public class Controller implements Initializable {
         RsaKeyPairManager manager = new RsaKeyPairManager(username, password, "./users");
         user = new User(username, password, manager.getKeyPair());
 
-        fileReceiver = new FileReceiver(user.getKeyPair(), fileReceiverPort);
+        fileReceiver = new FileReceiver(user.getKeyPair(), fileReceiverPort, receivingProgressLabel);
         receivingExecutor.submit(fileReceiver);
         keySender = new KeySender(user.getKeyPair().getPublic(), keySenderPort, keySenderTargetPort);
         keySendExecutor.submit(keySender);
@@ -147,25 +141,5 @@ public class Controller implements Initializable {
         modeChoiceBox.setVisible(true);
         selectFileButton.setVisible(true);
         selectFileLabel.setVisible(true);
-        testKeysButton.setVisible(true);
-
-    }
-
-    public void testKeys() {
-        try {
-            SecretKey firstKey = KeyGenerator.getInstance("AES").generateKey();
-            AsymmetricalCipher cipher = new RsaCipher(user.getKeyPair());
-            byte[] encryptedKeyBytes = cipher.encrypt(firstKey.getEncoded());
-            byte[] sentEncryptedKeyBytes = Base64.getDecoder().decode(Base64.getEncoder().encodeToString(encryptedKeyBytes));
-            byte[] decryptedKeyBytes = cipher.decrypt(sentEncryptedKeyBytes);
-            SecretKey testKey = new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES");
-            if(firstKey.equals(testKey)) {
-                System.out.println("RÓWNE");
-            } else {
-                System.out.println("BRZYDKO");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

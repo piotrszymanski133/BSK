@@ -1,8 +1,11 @@
 package sample.cipher;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class CipherFile {
@@ -36,8 +39,9 @@ public class CipherFile {
             }
             return cipher.doFinal(bytes);
 
-        }catch(Exception e){
-            System.out.println("Error with " + cipherMode + " mode decryption");
+        }catch(BadPaddingException | InvalidKeyException e){
+            return bytes;
+        }catch(NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException e){
             System.out.println(e.getMessage());
             return null;
         }

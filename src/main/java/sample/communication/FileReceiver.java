@@ -1,18 +1,17 @@
 package sample.communication;
 
+import javafx.application.Platform;
+import javafx.scene.control.Label;
 import sample.asymmetrical_cipher.*;
 import sample.cipher.*;
-
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,10 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FileReceiver implements Runnable{
     private KeyPair keyPair;
     private int port;
+    private Label receivingProgressLabel;
 
-    public FileReceiver(KeyPair keyPair, int port) {
+    public FileReceiver(KeyPair keyPair, int port, Label receivingProgressLabel) {
         this.keyPair = keyPair;
         this.port = port;
+        this.receivingProgressLabel = receivingProgressLabel;
     }
 
     private AtomicBoolean running = new AtomicBoolean(true);
@@ -43,8 +44,7 @@ public class FileReceiver implements Runnable{
                 try {
                     final Socket socket = serverSocket.accept();
                     downloadFile(socket);
-                }catch(SocketTimeoutException e){
-                    System.err.println(e.toString());
+                }catch(SocketTimeoutException ignored){
                 }
             }
         }catch(IOException e){
@@ -83,19 +83,9 @@ public class FileReceiver implements Runnable{
             data.setSecretKey(new SecretKeySpec(Arrays.copyOfRange(decryptedKeyBytes, 112, 128), 0, 16, "AES"));
             data.setIvParameterSpec(new IvParameterSpec(Arrays.copyOfRange(decryptedIvBytes, 112, 128)));
             name = name.replaceAll(String.valueOf((char) 0), "");
+            final String finalName = name;
+            Platform.runLater(() -> receivingProgressLabel.setText("Downloading file " + finalName));
 
- /*       CipherMode mode = CipherMode.valueOf(is.readUTF());
-        String key = is.readUTF();
-        byte[] decodedKey = Base64.getDecoder().decode(key);
-        String iv = is.readUTF();
-        byte[] decodedIv = Base64.getDecoder().decode(iv);
-        String name = is.readUTF();
-
-        Data data = new Data();
-        data.setSecretKey(new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES"));
-        data.setIvParameterSpec(new IvParameterSpec(decodedIv));
-        data.setCipherMode(mode);
-  */
             CipherFile cipherFile = new CipherFile();
             try (FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
@@ -104,13 +94,12 @@ public class FileReceiver implements Runnable{
                     decryptedBuffer = cipherFile.decrypt(data, buffer, mode);
                     os.write(decryptedBuffer);
                 }
-                //DEBUGOWANIE
+                Platform.runLater(() -> receivingProgressLabel.setText("Downloaded " + finalName));
                 System.out.println("Downloaded " + name);
-                System.out.println("Key " + data.getSecretKey());
-                System.out.println("IV " + data.getIvParameterSpec());
             }
         } catch (Exception e) {
             System.err.println(e.toString());
+            Platform.runLater(() -> receivingProgressLabel.setText("Download error"));
         }
     }
 }

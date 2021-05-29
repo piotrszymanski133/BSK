@@ -6,23 +6,11 @@ import javafx.scene.control.ProgressBar;
 import sample.asymmetrical_cipher.AsymmetricalCipher;
 import sample.asymmetrical_cipher.RsaCipher;
 import sample.cipher.*;
-
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyFactory;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.DoubleConsumer;
 
 /**
  * Thread responsible for sending encrypted file
