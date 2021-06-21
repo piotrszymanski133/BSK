@@ -11,7 +11,7 @@ import java.util.Base64;
 
 public class KeyRequester  implements Runnable{
     private PublicKey publicKey;
-    private String ip = "127.0.0.1";
+    private String ip = "192.168.56.102";
     private int senderPort;
     private int receiverPort;
 
@@ -28,7 +28,7 @@ public class KeyRequester  implements Runnable{
     public void run() {
 
         try{
-            Socket socket = new Socket("127.0.0.1", senderPort);
+            Socket socket = new Socket("192.168.56.102", senderPort);
             try(DataOutputStream os = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 os.writeUTF(ip);
             }

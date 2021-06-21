@@ -50,7 +50,7 @@ public class KeySender implements Runnable{
 
     private void sendKey(String ip){
         try{
-            Socket socket = new Socket("127.0.0.1", receiverPort);
+            Socket socket = new Socket("192.168.56.102", receiverPort);
             try(DataOutputStream os = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                 os.writeUTF(Base64.getEncoder().encodeToString(publicKey.getEncoded()));
             }

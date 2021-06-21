@@ -52,14 +52,14 @@ public class Controller implements Initializable {
     // when on two different machines keySenderPort and keyReceiverTargetPort should be equal
     // when on two different machines keyReceiverPort and keySenderTargetPort should be equal
     // I think at least, haven't tested it
-    private int keySenderPort = 8084;
-    private int keyReceiverPort = 8083;
+    private int keySenderPort = 8085;
+    private int keyReceiverPort = 8086;
     private int keySenderTargetPort = 8086;
     private int keyReceiverTargetPort = 8085;
 
     // when on two different machines fileSenderPort and fileReceiverPort should be equal
     private int fileSenderPort = 8088;
-    private int fileReceiverPort = 8087;
+    private int fileReceiverPort = 8088;
 
     private FileReceiver fileReceiver;
     private KeySender keySender;

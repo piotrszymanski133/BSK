@@ -85,13 +85,27 @@ public class FileReceiver implements Runnable{
             name = name.replaceAll(String.valueOf((char) 0), "");
             final String finalName = name;
             Platform.runLater(() -> receivingProgressLabel.setText("Downloading file " + finalName));
-
+            int bytes_read = 0;
+            int counter = 0;
             CipherFile cipherFile = new CipherFile();
             try (FileOutputStream os = new FileOutputStream(name)) {
                 byte[] buffer = new byte[16400];
                 byte[] decryptedBuffer;
-                while (is.read(buffer) != -1) {
-                    decryptedBuffer = cipherFile.decrypt(data, buffer, mode);
+                while (true) {
+                    while(is.available() < 16400) {
+                        Thread.sleep(10);
+                        counter++;
+                        if(counter > 100)
+                        {
+                            break;
+                        }
+                    }
+                    counter = 0;
+                    bytes_read = is.read(buffer);
+                    if(bytes_read == -1) {
+                        break;
+                    }
+                    decryptedBuffer = cipherFile.decrypt(data, Arrays.copyOfRange(buffer, 0, bytes_read), mode);
                     os.write(decryptedBuffer);
                 }
                 Platform.runLater(() -> receivingProgressLabel.setText("Downloaded " + finalName));

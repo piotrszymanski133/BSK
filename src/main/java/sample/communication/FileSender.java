@@ -38,7 +38,7 @@ public class FileSender implements Runnable{
     public void run() {
         while(true) {
             try (FileInputStream inputStream = new FileInputStream(data.getFile().getAbsolutePath())) {
-                Socket socket = new Socket("127.0.0.1", port);
+                Socket socket = new Socket("192.168.56.102", port);
                 try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
                     byte[] buffer = new byte[16384];
                     byte[] encryptedBuffer;
@@ -52,16 +52,17 @@ public class FileSender implements Runnable{
                     outputStream.writeUTF(Base64.getEncoder().encodeToString(encryptedIv));
                     outputStream.writeUTF(data.getFile().getName());
                     cipherFile = new CipherFile();
+                    int bytes_read = 0;
                     try {
-                        while ((inputStream.read(buffer)) != -1) {
+                        while ((bytes_read = inputStream.read(buffer)) != -1) {
                             readed += buffer.length;
                             final double c = readed;
                             encryptedBuffer = cipherFile.encrypt(data, buffer, mode);
-                            TimeUnit.MICROSECONDS.sleep(100);
+                            //TimeUnit.MICROSECONDS.sleep(10);
                             outputStream.write(encryptedBuffer);
                             Platform.runLater(() -> progressBar.setProgress(c / data.getFile().length()));
                         }
-                        Platform.runLater(() -> progressLabel.setText("File was send successfully!"));
+                        Platform.runLater(() -> progressLabel.setText("File was sent successfully!"));
                         break;
                     } catch (Exception e) {
                         System.err.println(e.getMessage());
